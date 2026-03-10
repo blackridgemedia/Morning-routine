@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#0D1118">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-title" content="Morning Routine">
+<title>Morning Routine</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0D1118;
+    --bg2: #111820;
+    --blue: #6AAAD0;
+    --ice: #DDEEF8;
+    --snow: #FFFFFF;
+    --amber: #E09A3A;
+    --muted: #7AAABB;
+    --faint: rgba(255,255,255,0.07);
+    --border: rgba(100,160,210,0.3);
+  }
+
+  body {
+    background: #0D1118 !important;
+    color: var(--snow);
+    font-family: Georgia, serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(180deg, #0D1118 0%, #111820 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px 24px;
+    text-align: center;
+  }
+
+  .header-label {
+    font-size: 10px; letter-spacing: 5px; text-transform: uppercase;
+    color: var(--blue); margin-bottom: 8px; font-family: sans-serif;
+  }
+
+  .header-date {
+    font-size: clamp(20px, 5vw, 32px);
+    font-weight: 400; line-height: 1.1; margin-bottom: 4px;
+  }
+
+  .header-msg { font-size: 15px !important;
+    font-size: 13px; color: #8AACBB; font-style: italic; margin-bottom: 22px;
+  }
+
+  .stats {
+    display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+  }
+
+  .stat { text-align: center; }
+
+  .stat-box {
+    width: 78px; height: 78px; margin: 0 auto 6px;
+    border: 2px solid rgba(74,127,165,0.1);
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+  }
+
+  .stat-box.streak-box { transition: border-color 0.3s; }
+
+  .stat-num { font-size: 22px; color: var(--blue); line-height: 1; }
+  .stat-sub { font-size: 11px; color: #7AAABB; font-family: sans-serif; }
+  .stat-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); font-family: sans-serif; }
+
+  .ring-wrap { position: relative; width: 78px; height: 78px; margin: 0 auto 6px; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-size: 17px;
+    transition: color 0.3s;
+  }
+
+  /* WEEK STRIP */
+  .week-strip {
+    padding: 14px 20px 0; max-width: 600px; margin: 0 auto;
+    display: flex; gap: 3px;
+  }
+
+  .week-day { flex: 1; text-align: center; }
+
+  .week-dow {
+    font-size: 8px; letter-spacing: 1px; text-transform: uppercase;
+    color: #6A8A9A; margin-bottom: 3px; font-family: sans-serif;
+  }
+
+  .week-cell {
+    height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-family: sans-serif; font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  /* TABS */
+  .tabs {
+    max-width: 600px; margin: 18px auto 0; padding: 0 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+  }
+
+  .tab-btn {
+    flex: 1; padding: 12px 16px; background: transparent; border: none;
+    cursor: pointer; font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+    font-family: sans-serif; font-weight: 600; color: var(--muted);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active { color: var(--ice); border-bottom-color: var(--blue); }
+
+  /* TAB CONTENT */
+  .tab-content { max-width: 600px; margin: 0 auto; padding: 26px 20px 0; display: none; }
+  .tab-content.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-head {
+    display: flex; align-items: center; gap: 12; margin-bottom: 12px;
+    gap: 12px;
+  }
+
+  .section-tag {
+    font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--amber); font-family: sans-serif; font-weight: 600; white-space: nowrap;
+  }
+
+  .section-tag.blue { color: var(--blue); }
+
+  .section-rule { flex: 1; height: 1px; background: rgba(255,255,255,0.05); }
+  .section-count { font-size: 11px; color: var(--muted); font-family: sans-serif; }
+
+  /* HABIT ITEMS */
+  .habits-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px; }
+
+  .habit-item {
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+    background: var(--faint); border: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer; transition: all 0.2s; user-select: none;
+  }
+
+  .habit-item.done {
+    background: rgba(74,127,165,0.08);
+    border-color: rgba(196,134,43,0.2);
+  }
+
+  .habit-item:active { transform: scale(0.99); }
+
+  .habit-check {
+    width: 24px; height: 24px; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.12);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; font-size: 13px; color: #fff;
+  }
+
+  .habit-item.done .habit-check {
+    border-color: var(--amber); background: var(--amber);
+  }
+
+  .habit-icon { font-size: 18px; flex-shrink: 0; }
+
+  .habit-label { font-size: 16px !important;
+    flex: 1; font-size: 16px; font-family: sans-serif; font-weight: 400;
+    color: var(--snow); transition: all 0.2s;
+  }
+
+  .habit-item.done .habit-label { font-size: 16px !important;
+    color: #8AAABB; text-decoration: line-through;
+    text-decoration-color: rgba(255,255,255,0.2);
+  }
+
+  .habit-streak {
+    font-size: 10px; font-family: sans-serif;
+    display: flex; align-items: center; gap: 3px; flex-shrink: 0;
+    color: var(--blue);
+  }
+
+  /* PERFECT BANNER */
+  .perfect-banner {
+    padding: 20px; text-align: center; margin-bottom: 20px;
+    background: rgba(196,134,43,0.08); border: 1px solid rgba(196,134,43,0.25);
+    display: none;
+  }
+  .perfect-banner.show { display: block; }
+  .perfect-banner .emoji { font-size: 26px; margin-bottom: 6px; }
+  .perfect-banner .title { font-size: 16px; color: var(--amber); margin-bottom: 4px; }
+  .perfect-banner .sub { font-size: 12px; color: #BBAA7A; font-style: italic; }
+
+  .habits-footer {
+    margin-top: 32px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.04);
+    text-align: center;
+    font-size: 11px; color: #6A8A9A; font-style: italic; line-height: 1.8; font-family: sans-serif;
+  }
+
+  /* SESSION BAR */
+  .session-bar {
+    background: var(--bg2); border: 1px solid var(--border);
+    padding: 16px 20px; margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+
+  .session-timer { font-family: monospace; font-size: 30px; color: var(--ice); letter-spacing: 4px; line-height: 1; }
+  .session-timer-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-top: 4px; font-family: sans-serif; }
+  .session-count { font-size: 24px; font-family: monospace; color: var(--blue); }
+  .session-count-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); font-family: sans-serif; }
+
+  .btn {
+    font-family: sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 10px 16px; border: none; cursor: pointer; transition: all 0.2s;
+  }
+
+  .btn-primary { background: rgba(74,127,165,0.2); color: var(--snow); }
+  .btn-primary.running { background: var(--blue); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid rgba(255,255,255,0.08); }
+
+  /* INJURY NOTE */
+  .injury-note { font-size: 13px !important;
+    background: rgba(196,148,90,0.07); border: 1px solid rgba(196,148,90,0.2);
+    padding: 12px 16px; margin-bottom: 22px;
+    display: flex; gap: 10px; align-items: start;
+    font-size: 12px; color: rgba(196,148,90,0.85); line-height: 1.6; font-family: sans-serif;
+  }
+
+  .injury-note strong { color: #C4945A; }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 2px; background: rgba(255,255,255,0.05); margin-bottom: 26px; }
+  .progress-fill { height: 100%; background: var(--blue); transition: width 0.4s ease; }
+
+  /* STRETCH SECTIONS */
+  .stretch-section { margin-bottom: 30px; }
+
+  .stretch-item {
+    background: var(--faint); border: 1px solid rgba(255,255,255,0.04);
+    padding: 16px; margin-bottom: 2px; transition: all 0.2s;
+  }
+
+  .stretch-item.done { background: rgba(74,127,165,0.08); border-color: rgba(74,127,165,0.15); }
+  .stretch-item.active { background: rgba(74,127,165,0.12); border-color: rgba(74,127,165,0.5); }
+
+  .stretch-inner { display: flex; gap: 12px; align-items: start; }
+
+  .stretch-num {
+    font-family: monospace; font-size: 18px;
+    color: rgba(200,221,232,0.12); line-height: 1; padding-top: 2px;
+    min-width: 24px; flex-shrink: 0; transition: color 0.2s;
+  }
+  .stretch-item.done .stretch-num { color: var(--blue); }
+  .stretch-item.active .stretch-num { color: var(--blue); }
+
+  .stretch-body { flex: 1; }
+
+  .stretch-top { display: flex; justify-content: space-between; align-items: start; gap: 8px; margin-bottom: 6px; }
+
+  .stretch-name { font-size: 15px !important;
+    font-size: 14px; font-family: sans-serif; font-weight: 500; color: var(--snow);
+    transition: all 0.2s;
+  }
+  .stretch-item.done .stretch-name { font-size: 15px !important; color: #8AACBB; text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
+
+  .stretch-dur { font-size: 11px; color: var(--blue); font-family: monospace; white-space: nowrap; flex-shrink: 0; }
+  .stretch-dur.ticking { color: #4A9FA5; }
+
+  .stretch-desc { font-size: 13px; color: #8AACBB; line-height: 1.6; font-family: sans-serif; margin-bottom: 6px; }
+
+  .stretch-note { font-size: 12px !important;
+    font-size: 11px; color: #7AAA8A; font-style: italic;
+    border-left: 2px solid rgba(74,127,165,0.25); padding-left: 8px;
+    margin-bottom: 10px; font-family: sans-serif; line-height: 1.5;
+  }
+
+  .stretch-footer { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+  .tag {
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 3px 8px; border: 1px solid; font-family: sans-serif;
+  }
+
+  .tag-calf     { border-color: #C4945A; color: #C4945A; }
+  .tag-gentle   { border-color: rgba(200,221,232,0.3); color: #8AACBB; }
+  .tag-snowboard{ border-color: #6AAAD0; color: #6AAAD0; }
+  .tag-mobility { border-color: rgba(150,200,150,0.4); color: #88bb88; }
+  .tag-fullbody { border-color: rgba(200,150,200,0.4); color: #bb88bb; }
+
+  .stretch-btns { margin-left: auto; display: flex; gap: 6px; }
+
+  .btn-sm {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 6px 11px; cursor: pointer; font-family: sans-serif; transition: all 0.2s;
+  }
+
+  .btn-timer { border: 1px solid rgba(74,127,165,0.3); background: transparent; color: var(--muted); }
+  .btn-timer.active { background: rgba(74,127,165,0.2); color: var(--blue); }
+  .btn-done-sm { border: 1px solid rgba(255,255,255,0.08); background: transparent; color: var(--muted); }
+  .btn-done-sm.done { border-color: rgba(74,127,165,0.4); background: rgba(74,127,165,0.15); color: var(--blue); }
+
+  /* SNOWBOARD NOTE */
+  .snowboard-note {
+    background: rgba(45,74,62,0.3); border: 1px solid rgba(45,74,62,0.7);
+    padding: 18px 20px; margin-top: 8px;
+  }
+  .snowboard-note-head { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: #88bb88; margin-bottom: 8px; font-family: sans-serif; }
+  .snowboard-note p { font-size: 13px; color: #8ABBA8; line-height: 1.7; font-family: sans-serif; }
+  .snowboard-note strong { color: #6A8A7A; }
+
+  .stretch-complete {
+    padding: 18px; text-align: center; margin-bottom: 20px;
+    background: rgba(196,134,43,0.08); border: 1px solid rgba(196,134,43,0.25);
+    display: none;
+  }
+  .stretch-complete.show { display: block; }
+  @media (prefers-color-scheme: light) {
+    html, body { background: #0D1118 !important; color: #FFFFFF !important; }
+    .header { background: #0D1118 !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-label">Morning Routine</div>
+  <div class="header-date" id="headerDate"></div>
+  <div class="header-msg" id="headerMsg">Today is a new day. Let's go.</div>
+  <div class="stats">
+    <div class="stat">
+      <div class="ring-wrap">
+        <svg width="78" height="78" viewBox="0 0 78 78">
+          <circle cx="39" cy="39" r="32" fill="none" stroke="rgba(74,127,165,0.1)" stroke-width="5"/>
+          <circle id="ringCircle" cx="39" cy="39" r="32" fill="none" stroke="#4A7FA5" stroke-width="5"
+            stroke-dasharray="201.06" stroke-dashoffset="201.06" stroke-linecap="round"
+            style="transition: stroke-dashoffset 0.5s ease"/>
+        </svg>
+        <div class="ring-center" id="ringPct">0%</div>
+      </div>
+      <div class="stat-label">Today</div>
+    </div>
+    <div class="stat">
+      <div class="stat-box streak-box" id="streakBox">
+        <div class="stat-num" id="streakNum" style="color:#2A3A4A">0</div>
+        <div>🔥</div>
+      </div>
+      <div class="stat-label">Streak</div>
+    </div>
+    <div class="stat">
+      <div class="stat-box">
+        <div class="stat-num" id="doneNum">0</div>
+        <div class="stat-sub">/ 4</div>
+      </div>
+      <div class="stat-label">Done</div>
+    </div>
+  </div>
+</div>
+
+<!-- WEEK STRIP -->
+<div class="week-strip" id="weekStrip"></div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('habits')">✓ Habits</button>
+  <button class="tab-btn" onclick="switchTab('stretches')">🦵 Stretches</button>
+</div>
+
+<!-- HABITS TAB -->
+<div class="tab-content active" id="tab-habits">
+  <div class="section-head">
+    <div class="section-tag">Morning</div>
+    <div class="section-rule"></div>
+    <div class="section-count" id="habitCount">0/4</div>
+  </div>
+
+  <div class="habits-list" id="habitsList"></div>
+
+  <div class="perfect-banner" id="perfectBanner">
+    <div class="emoji">🏂</div>
+    <div class="title">Perfect Morning</div>
+    <div class="sub">Now go crush the stretches →</div>
+  </div>
+
+  <div class="habits-footer">
+    Tap a habit to check it off · Data saved automatically<br>
+    Come back tomorrow — your streak is waiting.
+  </div>
+</div>
+
+<!-- STRETCHES TAB -->
+<div class="tab-content" id="tab-stretches">
+  <!-- Session bar -->
+  <div class="session-bar">
+    <div>
+      <div class="session-timer" id="sessionTimer">00:00</div>
+      <div class="session-timer-label">Session Timer</div>
+    </div>
+    <div style="text-align:center">
+      <div class="session-count" id="stretchCount">0/7</div>
+      <div class="session-count-label">Complete</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" id="sessionBtn" onclick="toggleSession()">Start</button>
+      <button class="btn btn-ghost" onclick="resetStretches()">Reset</button>
+    </div>
+  </div>
+
+  <!-- Injury note -->
+  <div class="injury-note">
+    <span style="font-size:14px;flex-shrink:0">⚠️</span>
+    <div><strong>Past injury — go easy.</strong> Aim for a gentle pull, never pain. Stop immediately if you feel anything sharp or familiar.</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar"><div class="progress-fill" id="stretchProgress" style="width:0%"></div></div>
+
+  <!-- Stretch sections -->
+  <div id="stretchesList"></div>
+
+  <div class="stretch-complete" id="stretchComplete">
+    <div style="font-size:24px;margin-bottom:6px">🏂</div>
+    <div style="font-size:15px;color:#C4862B;margin-bottom:4px">All 7 stretches done</div>
+    <div style="font-size:12px;color:#7A6A4A;font-style:italic">Your calves will thank you on the mountain.</div>
+  </div>
+
+  <div class="snowboard-note">
+    <div class="snowboard-note-head">🏂 Why This Matters for Snowboarding</div>
+    <p>Your calves drive heel-edge pressure when turning and absorb impact on variable terrain. The <strong>Soleus stretch (#04)</strong> is the most important — it controls ankle dorsiflexion, keeping your heels down in riding stance. As strength builds, progress to single-leg raises and eccentric drops.</p>
+  </div>
+</div>
+
+<script>
+// ── Data ─────────────────────────────────────────────────────────────────────
+
+const HABITS = [
+  { id: "water",    icon: "💧", label: "Water before phone" },
+  { id: "vitamins", icon: "💊", label: "Take vitamins" },
+  { id: "sunlight", icon: "🌤️", label: "Natural light / fresh air" },
+  { id: "stretch",  icon: "🦵", label: "10-min calf stretch routine" },
+];
+
+const STRETCHES = [
+  { id:"s1", num:"01", section:"Wake Up", name:"Ankle Circles", duration:"60 sec",
+    tags:["Gentle","Calf","Snowboard"],
+    desc:"Sit on the edge of your bed. Lift one foot and draw slow, large circles — 10 clockwise, 10 counter-clockwise. Then switch. Gets blood flowing before any weight-bearing stretch." },
+  { id:"s2", num:"02", section:"Wake Up", name:"Standing Calf Raises (Slow)", duration:"60 sec",
+    tags:["Gentle","Calf","Snowboard"],
+    desc:"Stand at a wall, hands lightly touching for balance. Rise slowly onto your toes over 3 counts, hold 1 sec at the top, lower over 3 counts. 10 reps. Activates the calf before stretching." },
+  { id:"s3", num:"03", section:"Calf Focus", name:"Wall Gastrocnemius Stretch", duration:"30 sec each side",
+    tags:["Calf","Snowboard","Gentle"],
+    desc:"Stand facing a wall, hands flat against it. Step your injured leg back, heel flat, knee straight. Lean gently into the wall until you feel a stretch in the upper calf. No bouncing.",
+    note:"Feel a gentle pull, not pain. Bring your foot closer if it's too intense." },
+  { id:"s4", num:"04", section:"Calf Focus", name:"Wall Soleus Stretch (Bent Knee)", duration:"30 sec each side",
+    tags:["Calf","Snowboard","Gentle"],
+    desc:"Same wall position — but bend the back knee slightly while keeping the heel flat. Drops the stretch into the soleus (deep calf). This is your primary brake when edging down a slope.",
+    note:"Most important stretch for snowboard stability. Don't skip this one." },
+  { id:"s5", num:"05", section:"Calf Focus", name:"Seated Towel Calf Stretch", duration:"30 sec each side",
+    tags:["Calf","Gentle","Mobility"],
+    desc:"Sit on the floor, legs straight. Loop a towel around the ball of one foot. Gently pull toes toward your shin until you feel the calf stretch. Zero weight-bearing — ideal for a previously injured calf.",
+    note:"Never yank — use just enough tension to feel the stretch." },
+  { id:"s6", num:"06", section:"Full Body", name:"Deep Squat Hold", duration:"60 sec",
+    tags:["Snowboard","Mobility","Full Body"],
+    desc:"Feet shoulder-width, toes slightly out. Lower into a deep squat, heels on floor. Hold a doorframe if needed. Opens hips, ankles, and Achilles — all critical for snowboard stance.",
+    note:"If heels won't stay flat, put a rolled towel under them." },
+  { id:"s7", num:"07", section:"Full Body", name:"Hip Flexor Lunge Stretch", duration:"30 sec each side",
+    tags:["Snowboard","Mobility","Full Body"],
+    desc:"Step one foot forward into a lunge, back knee on the floor (towel under it). Torso upright, gently push hips forward until you feel a stretch in the front of the back leg's hip.",
+    note:"Keeps your lower back safe during long riding sessions." },
+];
+
+const TAG_CLASS = {
+  "Calf":"tag-calf","Gentle":"tag-gentle","Snowboard":"tag-snowboard",
+  "Mobility":"tag-mobility","Full Body":"tag-fullbody"
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+function getToday() { return new Date().toISOString().slice(0,10); }
+
+function loadData() {
+  try { return JSON.parse(localStorage.getItem("habitData") || "{}"); } catch(e) { return {}; }
+}
+function saveData(d) {
+  try { localStorage.setItem("habitData", JSON.stringify(d)); } catch(e) {}
+}
+function loadStretches() {
+  try { return JSON.parse(localStorage.getItem("stretchData") || "{}"); } catch(e) { return {}; }
+}
+function saveStretches(d) {
+  try { localStorage.setItem("stretchData", JSON.stringify(d)); } catch(e) {}
+}
+
+let allData = loadData();
+let stretchData = loadStretches();
+let activeTimer = null;
+let elapsedTimer = null;
+let elapsedSecs = 0;
+let sessionInterval = null;
+let sessionSecs = 0;
+let sessionRunning = false;
+
+// ── Date helpers ─────────────────────────────────────────────────────────────
+
+function formatDate(str) {
+  const d = new Date(str + "T12:00:00");
+  return d.toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
+}
+function getDOW(str) {
+  return new Date(str + "T12:00:00").toLocaleDateString("en-US", { weekday:"short" });
+}
+
+// ── Streaks ───────────────────────────────────────────────────────────────────
+
+function getHabitStreak(habitId) {
+  let streak = 0;
+  const d = new Date(getToday() + "T12:00:00");
+  d.setDate(d.getDate() - 1);
+  while(true) {
+    const key = d.toISOString().slice(0,10);
+    if ((allData[key]||{})[habitId]) { streak++; d.setDate(d.getDate()-1); } else break;
+  }
+  return streak;
+}
+
+function getTotalStreak() {
+  let streak = 0;
+  const d = new Date(getToday() + "T12:00:00");
+  d.setDate(d.getDate() - 1);
+  while(true) {
+    const key = d.toISOString().slice(0,10);
+    const count = HABITS.filter(h => (allData[key]||{})[h.id]).length;
+    if (count === HABITS.length) { streak++; d.setDate(d.getDate()-1); } else break;
+  }
+  return streak;
+}
+
+function getLast7() {
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(getToday() + "T12:00:00");
+    d.setDate(d.getDate() - (6-i));
+    const key = d.toISOString().slice(0,10);
+    const count = HABITS.filter(h => (allData[key]||{})[h.id]).length;
+    return { key, pct: Math.round((count/HABITS.length)*100) };
+  });
+}
+
+// ── Render Header ─────────────────────────────────────────────────────────────
+
+function renderHeader() {
+  const today = getToday();
+  const todayData = allData[today] || {};
+  const checked = HABITS.filter(h => todayData[h.id]).length;
+  const pct = Math.round((checked / HABITS.length) * 100);
+  const streak = getTotalStreak();
+
+  document.getElementById("headerDate").textContent = formatDate(today);
+
+  const msgs = [
+    [100, "Perfect morning. You showed up. 🏂"],
+    [75,  "Almost there — keep it going."],
+    [50,  "Good start. Every habit counts."],
+    [1,   "You've begun. That's everything."],
+    [0,   "Today is a new day. Let's go."],
+  ];
+  document.getElementById("headerMsg").textContent = msgs.find(([t]) => pct >= t)[1];
+
+  // Ring
+  const circ = 2 * Math.PI * 32;
+  document.getElementById("ringCircle").style.strokeDashoffset = circ * (1 - pct/100);
+  document.getElementById("ringCircle").style.stroke = pct === 100 ? "#C4862B" : "#4A7FA5";
+  const ringEl = document.getElementById("ringPct");
+  ringEl.textContent = pct + "%";
+  ringEl.style.color = pct === 100 ? "#C4862B" : "#E8E4DC";
+
+  // Streak
+  document.getElementById("streakNum").textContent = streak;
+  document.getElementById("streakNum").style.color = streak > 0 ? "#C4862B" : "#2A3A4A";
+  document.getElementById("streakBox").style.borderColor = streak > 0 ? "rgba(196,134,43,0.4)" : "rgba(74,127,165,0.1)";
+
+  document.getElementById("doneNum").textContent = checked;
+  document.getElementById("habitCount").textContent = checked + "/4";
+
+  // Perfect banner
+  document.getElementById("perfectBanner").classList.toggle("show", pct === 100);
+}
+
+// ── Render Week Strip ─────────────────────────────────────────────────────────
+
+function renderWeek() {
+  const today = getToday();
+  const strip = document.getElementById("weekStrip");
+  strip.innerHTML = "";
+  getLast7().forEach(({ key, pct }) => {
+    const div = document.createElement("div");
+    div.className = "week-day";
+    const isToday = key === today;
+    let bg, color;
+    if (isToday)    { bg = "rgba(74,127,165,0.18)"; color = pct === 100 ? "#C4862B" : "#4A7FA5"; }
+    else if (pct === 100) { bg = "rgba(196,134,43,0.22)"; color = "#C4862B"; }
+    else if (pct > 0)     { bg = `rgba(74,127,165,${pct/300})`; color = "#4A7FA5"; }
+    else                   { bg = "rgba(255,255,255,0.02)"; color = "#1A2A3A"; }
+    div.innerHTML = `
+      <div class="week-dow">${getDOW(key)}</div>
+      <div class="week-cell" style="background:${bg};border:1px solid ${isToday?"rgba(74,127,165,0.4)":"transparent"};color:${color}">
+        ${pct > 0 ? pct+"%" : "–"}
+      </div>`;
+    strip.appendChild(div);
+  });
+}
+
+// ── Render Habits ─────────────────────────────────────────────────────────────
+
+function renderHabits() {
+  const today = getToday();
+  const todayData = allData[today] || {};
+  const list = document.getElementById("habitsList");
+  list.innerHTML = "";
+
+  HABITS.forEach(h => {
+    const done = !!todayData[h.id];
+    const streak = getHabitStreak(h.id);
+    const div = document.createElement("div");
+    div.className = "habit-item" + (done ? " done" : "");
+    div.onclick = () => toggleHabit(h.id);
+    div.innerHTML = `
+      <div class="habit-check">${done ? "✓" : ""}</div>
+      <div class="habit-icon">${h.icon}</div>
+      <div class="habit-label">${h.label}</div>
+      ${streak > 0 ? `<div class="habit-streak" style="color:${streak>=7?"#C4862B":"#4A7FA5"}">${streak>=7?"🔥":"·"} ${streak}d</div>` : ""}
+    `;
+    list.appendChild(div);
+  });
+}
+
+function toggleHabit(id) {
+  const today = getToday();
+  if (!allData[today]) allData[today] = {};
+  allData[today][id] = !allData[today][id];
+  saveData(allData);
+  renderHabits();
+  renderHeader();
+  renderWeek();
+}
+
+// ── Render Stretches ──────────────────────────────────────────────────────────
+
+function renderStretches() {
+  const list = document.getElementById("stretchesList");
+  const sections = ["Wake Up","Calf Focus","Full Body"];
+  const sectionLabels = {
+    "Wake Up":    "Minutes 1–2 · Wake Up",
+    "Calf Focus": "Minutes 2–7 · Calf & Lower Leg",
+    "Full Body":  "Minutes 7–10 · Full Body",
+  };
+
+  list.innerHTML = "";
+
+  sections.forEach(sec => {
+    const wrap = document.createElement("div");
+    wrap.className = "stretch-section";
+
+    const head = document.createElement("div");
+    head.className = "section-head";
+    head.innerHTML = `<div class="section-tag blue">${sectionLabels[sec]}</div><div class="section-rule"></div>`;
+    wrap.appendChild(head);
+
+    STRETCHES.filter(s => s.section === sec).forEach(s => {
+      const done = !!stretchData[s.id];
+      const isActive = activeTimer === s.id;
+      const div = document.createElement("div");
+      div.className = "stretch-item" + (done ? " done" : "") + (isActive ? " active" : "");
+      div.id = "stretch-" + s.id;
+
+      const durText = isActive ? `<span id="elapsed-${s.id}">${elapsedSecs}s</span>` : s.duration;
+
+      div.innerHTML = `
+        <div class="stretch-inner">
+          <div class="stretch-num">${s.num}</div>
+          <div class="stretch-body">
+            <div class="stretch-top">
+              <div class="stretch-name">${s.name}</div>
+              <div class="stretch-dur${isActive?" ticking":""}" id="dur-${s.id}">${durText}</div>
+            </div>
+            <div class="stretch-desc">${s.desc}</div>
+            ${s.note ? `<div class="stretch-note">${s.note}</div>` : ""}
+            <div class="stretch-footer">
+              ${s.tags.map(t => `<span class="tag ${TAG_CLASS[t]||""}">${t}</span>`).join("")}
+              <div class="stretch-btns">
+                <button class="btn-sm btn-timer${isActive?" active":""}" onclick="toggleStretchTimer('${s.id}')">${isActive?"Stop":"Timer"}</button>
+                <button class="btn-sm btn-done-sm${done?" done":""}" onclick="toggleStretchDone('${s.id}')">${done?"✓ Done":"Mark Done"}</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      wrap.appendChild(div);
+    });
+
+    list.appendChild(wrap);
+  });
+
+  updateStretchProgress();
+}
+
+function toggleStretchDone(id) {
+  stretchData[id] = !stretchData[id];
+  saveStretches(stretchData);
+  renderStretches();
+}
+
+function toggleStretchTimer(id) {
+  if (activeTimer === id) {
+    clearInterval(elapsedTimer);
+    activeTimer = null;
+    elapsedSecs = 0;
+  } else {
+    if (elapsedTimer) clearInterval(elapsedTimer);
+    activeTimer = id;
+    elapsedSecs = 0;
+    if (!sessionRunning) { sessionRunning = true; startSessionClock(); }
+    elapsedTimer = setInterval(() => {
+      elapsedSecs++;
+      const el = document.getElementById("elapsed-" + id);
+      if (el) el.textContent = elapsedSecs + "s";
+    }, 1000);
+  }
+  renderStretches();
+}
+
+function updateStretchProgress() {
+  const done = STRETCHES.filter(s => stretchData[s.id]).length;
+  const pct = Math.round((done / STRETCHES.length) * 100);
+  document.getElementById("stretchProgress").style.width = pct + "%";
+  document.getElementById("stretchCount").textContent = done + "/" + STRETCHES.length;
+  document.getElementById("stretchCount").style.color = pct === 100 ? "#C4862B" : "#4A7FA5";
+  document.getElementById("stretchComplete").classList.toggle("show", pct === 100);
+}
+
+// ── Session Clock ─────────────────────────────────────────────────────────────
+
+function startSessionClock() {
+  if (sessionInterval) clearInterval(sessionInterval);
+  sessionInterval = setInterval(() => {
+    if (!sessionRunning) return;
+    sessionSecs++;
+    const mm = String(Math.floor(sessionSecs/60)).padStart(2,"0");
+    const ss = String(sessionSecs%60).padStart(2,"0");
+    document.getElementById("sessionTimer").textContent = mm+":"+ss;
+  }, 1000);
+}
+
+function toggleSession() {
+  sessionRunning = !sessionRunning;
+  const btn = document.getElementById("sessionBtn");
+  btn.textContent = sessionRunning ? "Pause" : "Start";
+  btn.classList.toggle("running", sessionRunning);
+  if (sessionRunning) startSessionClock();
+}
+
+function resetStretches() {
+  clearInterval(elapsedTimer);
+  clearInterval(sessionInterval);
+  activeTimer = null; elapsedSecs = 0;
+  sessionSecs = 0; sessionRunning = false;
+  stretchData = {};
+  saveStretches(stretchData);
+  document.getElementById("sessionTimer").textContent = "00:00";
+  document.getElementById("sessionBtn").textContent = "Start";
+  document.getElementById("sessionBtn").classList.remove("running");
+  renderStretches();
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+
+function switchTab(name) {
+  document.querySelectorAll(".tab-btn").forEach((b,i) => {
+    b.classList.toggle("active", ["habits","stretches"][i] === name);
+  });
+  document.querySelectorAll(".tab-content").forEach(c => {
+    c.classList.toggle("active", c.id === "tab-" + name);
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+renderHeader();
+renderWeek();
+renderHabits();
+renderStretches();
+
+// Refresh at midnight
+setInterval(() => {
+  renderHeader();
+  renderWeek();
+  renderHabits();
+}, 60000);
+</script>
+</body>
+</html>
